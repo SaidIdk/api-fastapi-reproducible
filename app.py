@@ -18,10 +18,16 @@ class DatosCampana(BaseModel):
 
 
 def cargar_dataset():
-    if DATA_PATH.exists():
-        with open(DATA_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return [{"id": 1, "nombre": "Muestra inicial", "version": "v1.0.0"}]
+    fallback = [{"id": 1, "nombre": "Muestra inicial", "version": "v1.0.0"}]
+    if not DATA_PATH.exists():
+        return fallback
+    for enc in ("utf-8-sig", "utf-16"):
+        try:
+            with open(DATA_PATH, "r", encoding=enc) as f:
+                return json.load(f)
+        except Exception:
+            continue
+    return fallback
 
 
 @app.get("/", tags=["Inicio"])
@@ -47,7 +53,13 @@ def obtener_datos():
 @app.post("/predecir", tags=["Predicción"])
 def predecir_ventas(datos: DatosCampana):
     dataset = cargar_dataset()
-    version = dataset[0].get("version", "v1.0.0") if dataset else "v1.0.0"
+    if isinstance(dataset, list) and len(dataset) > 0 and isinstance(dataset[0], dict):
+        version = dataset[0].get("version", "v1.0.0")
+    elif isinstance(dataset, dict):
+        version = dataset.get("version", "v1.0.0")
+    else:
+        version = "v1.0.0"
+
     ventas_estimadas = round(120.0 + (datos.inversion_publicidad * 3.2) + (datos.dias_campana * 15.5), 2)
     return {
         "inversion_publicidad": datos.inversion_publicidad,
