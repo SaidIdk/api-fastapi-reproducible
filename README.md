@@ -4,8 +4,8 @@ Proyecto desplegado y configurado bajo estándares de reproducibilidad (entorno 
 
 ## Enlace desplegado
 
-- **API en producción:** `https://<tu-dominio>.onrender.com`
-- **Documentación interactiva (Swagger UI):** `https://<tu-dominio>.onrender.com/docs`
+- **API en producción:** `api-fastapi-reproducible.onrender.com`
+- **Documentación interactiva (Swagger UI):** `api-fastapi-reproducible.onrender.com/docs`
 
 ## 1. Reproducibilidad del entorno
 
