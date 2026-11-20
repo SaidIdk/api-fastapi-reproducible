@@ -13,8 +13,8 @@ DATA_PATH = Path("data/v1/dataset.json")
 
 
 class DatosCampana(BaseModel):
-    inversion_publicidad: float = Field(..., example=500.0, description="Monto invertido en publicidad (S/)")
-    dias_campana: int = Field(..., example=15, description="Duración de la campaña en días")
+    inversion_publicidad: float = Field(..., example=200.0, description="Monto invertido en publicidad (S/)")
+    dias_campana: int = Field(..., example=5, description="Duración de la campaña en días")
 
 
 def cargar_dataset():
@@ -60,10 +60,26 @@ def predecir_ventas(datos: DatosCampana):
     else:
         version = "v1.0.0"
 
-    ventas_estimadas = round(120.0 + (datos.inversion_publicidad * 3.2) + (datos.dias_campana * 15.5), 2)
+    base = 120.0
+    peso_inversion = 3.2
+    peso_dias = 15.5
+
+    aporte_inversion = round(datos.inversion_publicidad * peso_inversion, 2)
+    aporte_dias = round(datos.dias_campana * peso_dias, 2)
+    ventas_estimadas = round(base + aporte_inversion + aporte_dias, 2)
+
     return {
-        "inversion_publicidad": datos.inversion_publicidad,
-        "dias_campana": datos.dias_campana,
+        "entrada": {
+            "inversion_publicidad": datos.inversion_publicidad,
+            "dias_campana": datos.dias_campana,
+        },
+        "proceso_calculo": {
+            "ecuacion": "ventas = 120.0 + (inversion * 3.2) + (dias * 15.5)",
+            "paso_1_base": base,
+            "paso_2_inversion": f"{datos.inversion_publicidad} * {peso_inversion} = {aporte_inversion}",
+            "paso_3_dias": f"{datos.dias_campana} * {peso_dias} = {aporte_dias}",
+            "paso_4_total": f"{base} + {aporte_inversion} + {aporte_dias} = {ventas_estimadas}",
+        },
         "ventas_estimadas": ventas_estimadas,
         "rendimiento": "Alto" if ventas_estimadas >= 1500 else "Moderado",
         "modelo": "Regresión Lineal v1.0.0",
